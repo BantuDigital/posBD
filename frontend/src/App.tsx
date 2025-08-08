@@ -7,7 +7,7 @@ import AddCOGS from './pages/AddCOGS';
 import EditProduct from './pages/EditProduct';
 import ReStockProduct from './pages/ReStockProduct';
 import TransactionList from './pages/TransactionList';
-
+import AddTransaction from './pages/AddTransaction';
 function App() {
   return (
     <BrowserRouter>
@@ -15,11 +15,12 @@ function App() {
         <Route path="/login" element={<AuthPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/product" element={<Product />} />
-        <Route path="/add-product" element={<AddProduct />} />
+        <Route path="/product/create" element={<AddProduct />} />
         <Route path="/add-cogs/:productId" element={<AddCOGS />} />
         <Route path="/product/:productId" element={<EditProduct />} />
         <Route path="/restock/:productId" element={<ReStockProduct />} />
         <Route path="/transaction" element={<TransactionList />} />
+        <Route path="/transaction/create" element={<AddTransaction />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

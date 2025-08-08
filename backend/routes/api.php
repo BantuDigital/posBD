@@ -1,7 +1,6 @@
-// Transaction list with search, filter, pagination
-Route::get('/transactions', [App\Http\Controllers\TransactionController::class, 'index']);
 <?php
 
+use App\Http\Controllers\BuyerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,7 +32,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/restock/{productId}', [ProductController::class, 'restock']);
     Route::put('/products/{productId}', [ProductController::class, 'update']);
-    
+
+    Route::get('/buyers', [BuyerController::class, 'index']);
     Route::get('/transactions', [TransactionController::class, 'index']);
+    Route::post('/transactions', [TransactionController::class, 'store']);
+    Route::post('/transactions/{transaction}/status', [TransactionController::class, 'status']);
 });
 

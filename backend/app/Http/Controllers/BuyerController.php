@@ -12,7 +12,8 @@ class BuyerController extends Controller
      */
     public function index()
     {
-        //
+        $buyers = Buyer::all();
+        return response()->json($buyers);
     }
 
     /**

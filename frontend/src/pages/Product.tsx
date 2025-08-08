@@ -40,6 +40,7 @@ const Product = () => {
             setTotalPages(response.data.last_page);
         };
         fetchProducts();
+        // console.log('Products fetched:', products);
     }, [search, sortBy, sortOrder, page]);
 
     return (
@@ -73,8 +74,12 @@ const Product = () => {
                             </select>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {products.map((product) => (
-                                <>
+                            {!products ? (
+                                <div className="col-span-full text-center py-8 text-gray-500 text-lg">
+                                    Belum ada produk, tambahkan produk
+                                </div>
+                            ) : (
+                                products?.map((product) => (
                                     <div key={product.id} className="border p-4 rounded shadow">
                                         <img
                                             src={product.image_url || '/placeholder.svg'}
@@ -90,19 +95,17 @@ const Product = () => {
                                         <p className="text-gray-600">Category: {product.category}</p>
                                         <p className="text-gray-600">Harga jual: {rupiah(product.harga_jual)}</p>
                                         <p className="text-gray-600">Harga modal: {rupiah(product.harga_modal)}</p>
-                                        <p className={`text-sm ${product.is_active ? 'text-green-500' : 'text-red-500'}`}>
+                                        <p className={`text-sm ${product.is_active ? 'text-green-500' : 'text-red-500'}`}> 
                                             {product.is_active ? 'Active' : 'Inactive'}
                                         </p>
                                         <div className="mt-4 flex justify-between">
                                             <NavLink to={`/restock/${product.id}`} className="text-white w-full text-center bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded">
                                                 Restock
                                             </NavLink>
-
                                         </div>
-
                                     </div>
-                                </>
-                            ))}
+                                ))
+                            )}
                         </div>
                         <div className="mt-4 flex justify-between items-center">
                             <button
@@ -129,7 +132,7 @@ const Product = () => {
             </div>
             <div className="flex justify-end mb-4 fixed bottom-10 right-1/2 translate-x-1/2">
                 <button
-                    onClick={() => navigate('/add-product')}
+                    onClick={() => navigate('/product/create')}
                     className=" px-6 py-4  bg-blue-500 text-white rounded-full font-bold  hover:bg-blue-600">
                     Tambah Produk
                 </button>
