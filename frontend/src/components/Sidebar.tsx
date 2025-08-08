@@ -4,6 +4,7 @@ type SidebarProps = {
 };
 
 import { NavLink, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 export default function Sidebar({ open, setOpen }: SidebarProps) {
     const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function Sidebar({ open, setOpen }: SidebarProps) {
                     <NavLink to="/dashboard" className={({ isActive }) => `block py-2 px-4 rounded-lg font-medium transition ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50'}`}>Dashboard</NavLink>
                     <NavLink to="/product" className={({ isActive }) => `block py-2 px-4 rounded-lg font-medium transition ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50'}`}>Produk</NavLink>
                     <NavLink to="/transaction" className={({ isActive }) => `block py-2 px-4 rounded-lg font-medium transition ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50'}`}>Transaksi</NavLink>
-                    <NavLink to="/" className={({ isActive }) => `block py-2 px-4 rounded-lg font-medium transition ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50'}`}>Laporan</NavLink>
+                    <NavLink to="/operasional" onClick={() => Swal.fire("Coming Soon")} className={({ isActive }) => `block py-2 px-4 rounded-lg font-medium transition ${isActive ? 'bg-blue-50 text-blue-700' : 'text-gray-700 hover:bg-blue-50'}`}>Operasional</NavLink>
                 </nav>
                 <button onClick={logout} className="mt-8 py-2 px-4 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition text-left font-semibold">Logout</button>
             </aside>

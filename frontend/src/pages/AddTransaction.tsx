@@ -13,22 +13,28 @@ const AddTransaction = () => {
     const [buyer, setBuyer] = useState({
         name: '',
         phone: '',
-        address: ''
+        address: '',
+        id: 0
     });
+    // Store full buyer list for autofill
+    const [buyerList, setBuyerList] = useState<any[]>([]);
     const [status, setStatus] = useState('process');
 
     const [buyerOptions, setBuyerOptions] = useState<{ value: string; label: string }[]>([]);
     useEffect(() => {
-        // Fetch buyers for select
+        // Fetch buyers for select and autofill
         const fetchBuyers = async () => {
             try {
                 const res = await axios.get('/buyers', {
                     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
                 });
-                const options = (res.data.data || res.data).map((b: any) => ({ value: b.name, label: b.name }));
+                const buyers = res.data.data || res.data;
+                setBuyerList(buyers);
+                const options = buyers.map((b: any) => ({ value: b.name, label: b.name }));
                 setBuyerOptions(options);
             } catch (err) {
                 setBuyerOptions([]);
+                setBuyerList([]);
             }
         };
         fetchBuyers();
@@ -86,6 +92,7 @@ const AddTransaction = () => {
         e.preventDefault();
         // Handle form submission logic here
         const transactionData = {
+            buyer_id: buyerList.find(b => b.name === buyer.name)?.id || null,
             buyer_name: buyer.name,
             buyer_phone: buyer.phone,
             buyer_address: buyer.address,
@@ -103,7 +110,7 @@ const AddTransaction = () => {
                 timer: 1500
             });
             navigate('/transaction');
-        } catch (error:any) {
+        } catch (error: any) {
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal menyimpan transaksi.',
@@ -129,19 +136,36 @@ const AddTransaction = () => {
                                         isClearable
                                         options={buyerOptions}
                                         value={buyer.name ? { value: buyer.name, label: buyer.name } : null}
-                                        onChange={option => setBuyer({ ...buyer, name: option ? option.value : '' })}
-                                        onCreateOption={inputValue => setBuyer({ ...buyer, name: inputValue })}
+                                        onChange={option => {
+                                            if (option) {
+                                                // Find buyer in list
+                                                const found = buyerList.find(b => b.name === option.value);
+                                                if (found) {
+                                                    setBuyer({
+                                                        name: found.name,
+                                                        phone: found.phone || '',
+                                                        address: found.address || '',
+                                                        id: found.id || 0
+                                                    });
+                                                } else {
+                                                    setBuyer({ name: option.value, phone: '', address: '', id: 0 });
+                                                }
+                                            } else {
+                                                setBuyer({ name: '', phone: '', address: '', id: 0 });
+                                            }
+                                        }}
+                                        onCreateOption={inputValue => setBuyer({ name: inputValue, phone: '', address: '', id: 0 })}
                                         placeholder="Cari atau buat nama pembeli"
                                         classNamePrefix="react-select"
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Telepon </label>
-                                    <input  type="text" name="buyer_phone" value={buyer.phone} onChange={e => setBuyer({ ...buyer, phone: e.target.value })} className="mt-1 block w-full border p-2 rounded" placeholder="Masukkan nomor telepon" />
+                                    <input type="text" name="buyer_phone" value={buyer.phone} onChange={e => setBuyer({ ...buyer, phone: e.target.value })} className="mt-1 block w-full border p-2 rounded" placeholder="Masukkan nomor telepon" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Alamat </label>
-                                    <textarea  name="buyer_address" value={buyer.address} onChange={e => setBuyer({ ...buyer, address: e.target.value })} className="mt-1 block w-full border p-2 rounded" placeholder="Masukkan alamat pembeli"></textarea>
+                                    <textarea name="buyer_address" value={buyer.address} onChange={e => setBuyer({ ...buyer, address: e.target.value })} className="mt-1 block w-full border p-2 rounded" placeholder="Masukkan alamat pembeli"></textarea>
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Produk <span className='text-red-500'>*</span></label>
@@ -177,7 +201,8 @@ const AddTransaction = () => {
                                             <button type="button" onClick={() => handleRemoveProduct(idx)} className="px-2 py-1 bg-red-500 text-white rounded">Hapus</button>
                                         </div>
                                     ))}
-                                    <div>
+                                    <button type="button" onClick={handleAddProduct} className="px-4 py-2 bg-blue-500 text-white rounded mt-2">Tambah Produk</button>
+                                    <div className="mt-4">
                                         <label className="block text-sm font-medium text-gray-700">Status <span className='text-red-500'>*</span></label>
                                         <select required name="status" value={status} onChange={e => setStatus(e.target.value)} className="mt-1 block w-full border p-2 rounded">
                                             <option value="process">Proses</option>
@@ -185,12 +210,39 @@ const AddTransaction = () => {
                                             <option value="cancelled">Dibatalkan</option>
                                         </select>
                                     </div>
-                                    <button type="button" onClick={handleAddProduct} className="px-4 py-2 bg-blue-500 text-white rounded mt-2">Tambah Produk</button>
                                 </div>
                                 <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full">Simpan Transaksi</button>
+                                <h3 className='mt-4 font-bold'>
+                                    Keterangan :
+                                </h3>
+
+                                <ul className='list-disc pl-5'>
+                                    <li>
+
+                                        <h3 className='mt-4 font-bold'>
+                                            (<span className='text-red-500'>*</span>) Wajib diisi
+
+                                        </h3>
+                                    </li>
+                                    <li>
+                                        <h3 className='mt-4 font-bold'>
+                                             Pastikan stok cukup untuk transaksi ini.
+                                        </h3>
+                                    </li>
+                                    <li>
+
+                                        <h3 className='mt-4 font-bold'>
+                                          Jangan lupa mengisi nama pembeli, jika pembeli baru, anda bisa membuatnya dengan mengisi nama pembeli dan memilihnya 
+                                        </h3>
+                                    </li>
+                                
+                                </ul>
+
                             </form>
                         </main>
+
                     </div>
+
 
                 </div>
             </div>

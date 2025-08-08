@@ -152,7 +152,7 @@ const AddProduct = () => {
                                 <span className='text-sm font-bold'>Harga Modal adalah harga yang anda keluarkan untuk memproduksi barang tersebut.
                                     jika anda tidak mau menghitung biaya produksi dengan detail,
                                     cukup isi dengan harga bahan baku utama produk ini.
-                                    biaya lain lain seperti gas, air, listrik dan tenaga kerja dapat dimasukkan dimenu operasional</span>
+                                    biaya lain lain seperti gas, air, listrik dan tenaga kerja dapat dimasukkan dimenu <span className='font-bold'>operasional</span></span>
                             </li>
                             <li>
                                 <span className='text-sm font-bold'>Harga Jual adalah harga yang anda berikan kepada konsumen / tertera di pembelian</span>

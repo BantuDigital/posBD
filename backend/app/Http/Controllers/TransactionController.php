@@ -60,7 +60,7 @@ class TransactionController extends Controller
 
         DB::beginTransaction();
         try {
-            if ($validated['status'] =='cancelled') {
+            if ($validated['status'] == 'cancelled') {
                 // If cancelled, revert stock for all products in the transaction
                 $productTransactions = ProductTransaction::where('transaction_id', $transaction->id)->get();
                 foreach ($productTransactions as $productTransaction) {
@@ -78,7 +78,7 @@ class TransactionController extends Controller
             return response()->json(['error' => 'Gagal mengubah status transaksi: ' . $e->getMessage()], 500);
         }
     }
-  
+
 
     /**
      * Store a newly created resource in storage.
@@ -86,6 +86,7 @@ class TransactionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'buyer_id' => 'nullable|exists:buyers,id',
             'buyer_name' => 'required',
             'buyer_phone' => 'nullable',
             'buyer_address' => 'nullable',
@@ -96,13 +97,21 @@ class TransactionController extends Controller
 
         DB::beginTransaction();
         try {
-            $buyer = Buyer::where('phone', $validated['buyer_phone'])->first();
+            $buyer = Buyer::where('id', $validated['buyer_id'])->first();
+
             if (!$buyer) {
                 $buyer = new Buyer();
                 $buyer->name = $validated['buyer_name'];
                 $buyer->phone = $validated['buyer_phone'] ?? null;
                 $buyer->address = $validated['buyer_address'] ?? null;
                 $buyer->save();
+            }
+            if ($buyer) {
+                if ($validated['buyer_phone'] || $validated['buyer_address']) {
+                    $buyer->phone = $validated['buyer_phone'] ?? null;
+                    $buyer->address = $validated['buyer_address'] ?? null;
+                    $buyer->save();
+                }
             }
 
 
