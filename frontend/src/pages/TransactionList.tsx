@@ -11,10 +11,25 @@ interface Transaction {
     id: number;
     transaction_number: string;
     transaction_date: string;
-    buyer_name: string;
+    buyer: {
+        name: string;
+    };
     quantity: number;
     total_harga: number;
     status: string;
+    products: [
+        {
+            id:number,
+            name: string,
+            pivot: {
+
+                quantity: number,
+                harga_jual: number,
+                harga_modal: number,
+                notes: string | null
+            }
+        }
+    ]
 }
 
 const TransactionList = () => {
@@ -52,7 +67,7 @@ const TransactionList = () => {
                 text: `Status transaksi berhasil diubah menjadi ${status === 'completed' ? 'Selesai' : 'Batal'}.`,
             });
             // setTransactions(transactions.map(trx => trx.id === id ? { ...trx, status } : trx));
-        } catch (error : any) {
+        } catch (error: any) {
             Swal.fire({
                 icon: 'error',
                 title: 'Gagal',
@@ -61,6 +76,12 @@ const TransactionList = () => {
             console.error('Error updating transaction status:', error);
         }
     };
+
+    const hitungTotalRupiah = (trx: Transaction) => {
+        return rupiah(trx.products.reduce((acc, product) => {
+            return acc + (product.pivot.harga_jual * product.pivot.quantity);
+        }, 0));
+    }
 
     const fetchTransactions = async () => {
         setLoading(true);
@@ -119,31 +140,60 @@ const TransactionList = () => {
                                 {transactions.length === 0 ? (
                                     <div className="col-span-full text-center py-4">Tidak ada transaksi</div>
                                 ) : (
-                                    transactions.map((trx) => (
-                                        <div key={trx.transaction_number } className="border p-4 rounded shadow bg-white flex flex-col justify-between">
-                                            <div>
-                                                <div className="flex justify-between mb-2">
-                                                    <span className="text-xs text-gray-500">{trx.transaction_date}</span>
-                                                    <span className="text-xs text-gray-500">No: {trx.transaction_number}</span>
-                                                </div>
-                                                <div className="flex justify-between mb-1">
-                                                    <span className="text-gray-700"> Qty: {Math.abs(trx.quantity)}</span>
-                                                    <span className="font-bold text-blue-700">{rupiah(trx.total_harga)}</span>
-                                                </div>
-                                                <div className='flex justify-between mb-1'>
-                                                    <div className="text-gray-600 text-sm mb-1">Pembeli: {trx.buyer_name || '-'}</div>
-                                                    {trx.status != 'completed' ? (
-                                                        <div className='flex gap-2'>
-                                                            <button onClick={() => handleUpdateStatus(trx.id, 'completed')} className='bg-blue-500 text-white rounded px-2 py-1'>Selesai</button>
-                                                            <button onClick={() => handleUpdateStatus(trx.id, 'cancelled')} className='bg-red-500 text-white rounded px-2 py-1'>Batal</button>
+                                    transactions.map((trx) => {
+                                        // Hitung laba kotor per transaksi
+                                        const labaKotor = trx.products.reduce((acc, product) => {
+                                            return acc + ((product.pivot.harga_jual - product.pivot.harga_modal) * product.pivot.quantity);
+                                        }, 0);
+
+                                        return (
+                                            <div key={trx.transaction_number} className="border p-4 rounded shadow bg-white flex flex-col justify-between">
+                                                <div>
+                                                    <div className="flex justify-between mb-2">
+                                                        <span className="text-xs text-gray-500">{trx.transaction_date}</span>
+                                                        <span className="text-xs text-gray-500">No: {trx.transaction_number}</span>
+                                                    </div>
+                                                    <div className="flex justify-between mb-1">
+                                                        <div className="text-gray-600 text-sm mb-1">Pembeli: {trx.buyer.name || '-'}</div>
+                                                        <span className="font-bold text-blue-700">{hitungTotalRupiah(trx)}</span>
+                                                    </div>
+                                                    {/* Laba kotor */}
+                                                    <div className="flex justify-between mb-1">
+                                                        <span className="text-sm text-gray-500">Laba Kotor:</span>
+                                                        <span className="text-sm font-semibold text-green-600">{rupiah(labaKotor)}</span>
+                                                    </div>
+                                                    <hr className='mt-5' />
+                                                    {trx.products.map((product) => (
+                                                        <div className='py-3 flex justify-between border-b border-gray-300' key={product.id}>
+                                                            <div>
+                                                                <h3 className='font-bold'>
+                                                                    {product.name}
+                                                                </h3>
+                                                                {product.pivot.notes &&
+                                                                    <span className='text-xs'>
+                                                                        * {product.pivot.notes}
+                                                                    </span>
+                                                                }
+                                                            </div>
+                                                            <div>
+                                                                {Math.abs(product.pivot.quantity)} x {rupiah(product.pivot.harga_jual)}
+                                                            </div>
                                                         </div>
-                                                    ): (
-                                                        <span className={`text-sm font-bold ${trx.status === 'completed' ? 'text-green-500' : 'text-red-500'}`}>{trx.status}</span>
-                                                    )}
+                                                    ))}
+                                                    <div className='flex justify-end mb-1 mt-4'>
+                                                        {trx.status != 'completed' ? (
+                                                            <div className='flex gap-2'>
+                                                                <button onClick={() => handleUpdateStatus(trx.id, 'completed')} className='bg-blue-500 text-white rounded px-2 py-1'>Selesai</button>
+                                                                <button onClick={() => handleUpdateStatus(trx.id, 'cancelled')} className='bg-red-500 text-white rounded px-2 py-1'>Batal</button>
+                                                            </div>
+                                                        ) : (
+                                                            <span className={`text-sm font-bold ${trx.status === 'completed' ? 'text-green-500' : 'text-red-500'}`}>{trx.status}</span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 )}
                             </div>
                         )}

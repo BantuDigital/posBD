@@ -83,7 +83,8 @@ const Product = () => {
                                 products?.map((product) => (
                                     <div key={product.id} className="border p-4 rounded shadow">
                                         <img
-                                            src={storageLink + product.image_url || '/placeholder.svg'}
+                                            src={product.image_url ? storageLink + product.image_url : '/placeholder.svg'}
+
                                             alt={product.name}
                                             className="w-full h-32 object-cover mb-2"
                                         />

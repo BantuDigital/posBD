@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {  useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -48,7 +48,7 @@ export default function ResetPasswordPage() {
             setTimeout(() => navigate('/login'), 2000);
         } catch (err: any) {
             setError(err.response?.data?.message || err.message || 'Gagal reset password');
-                
+
         } finally {
             setLoading(false);
         }

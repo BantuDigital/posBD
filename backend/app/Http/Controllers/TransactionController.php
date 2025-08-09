@@ -16,34 +16,24 @@ class TransactionController extends Controller
      */
     public function index(Request $request)
     {
-        $query = DB::table('transactions')
-            ->join('buyers', 'transactions.buyer_id', '=', 'buyers.id')
-            ->join('product_transactions', 'transactions.id', '=', 'product_transactions.transaction_id')
-            ->join('products', 'product_transactions.product_id', '=', 'products.id')
-            ->select(
-                'transactions.id',
-                'transactions.transaction_number',
-                'transactions.transaction_date',
-                'transactions.status',
-                'buyers.name as buyer_name',
-                'product_transactions.quantity',
-                DB::raw('(products.harga_jual * product_transactions.quantity) as total_harga')
-            );
+        $query = Transaction::query()->with(['products','buyer']);
 
         // Search by transaction number or buyer name
         if ($request->has('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('transactions.transaction_number', 'like', "%$search%")
-                    ->orWhere('buyers.name', 'like', "%$search%");
+                    ->orWhereHas('buyer', function ($buyerQuery) use ($search) {
+                        $buyerQuery->where('name', 'like', "%$search%");
+                    });
             });
         }
 
         // Filter terbaru/terlama
         $order = $request->input('order', 'desc'); // default terbaru
         $query->orderBy('transactions.created_at', $order);
-
         // Pagination
+
         $transactions = $query->paginate(10);
 
         return response()->json($transactions);
