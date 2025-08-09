@@ -25,6 +25,7 @@ use App\Http\Controllers\TransactionController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{productId}/cogs', [COGSController::class, 'index']);
 

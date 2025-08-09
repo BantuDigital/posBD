@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import rupiah from '../utils/currency';
 import { NavLink, useNavigate } from 'react-router-dom';
+import storageLink from '../main';
 
 type Product = {
     id: number;
@@ -82,7 +83,7 @@ const Product = () => {
                                 products?.map((product) => (
                                     <div key={product.id} className="border p-4 rounded shadow">
                                         <img
-                                            src={product.image_url || '/placeholder.svg'}
+                                            src={storageLink + product.image_url || '/placeholder.svg'}
                                             alt={product.name}
                                             className="w-full h-32 object-cover mb-2"
                                         />

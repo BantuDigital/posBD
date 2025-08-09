@@ -49,7 +49,7 @@ export default function AuthPage() {
     }
     setLoading(true);
     try {
-      await axios.post(`${axios.defaults.baseURL}/forgot-password`, { email });
+      await axios.post(`forgot-password`, { email });
       setSuccess('Link reset password telah dikirim ke email Anda.');
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Gagal mengirim email');
