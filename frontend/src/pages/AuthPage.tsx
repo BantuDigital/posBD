@@ -31,7 +31,7 @@ export default function AuthPage() {
     try {
       const res = await axios.post(`${axios.defaults.baseURL}/login`, { email, password });
       localStorage.setItem('token', res.data.access_token);
-      window.location.href = '/dashboard';
+      navigate('/dashboard') ;
     } catch (err: any) {
       setError(err.response?.data?.message || err.message || 'Login gagal');
     } finally {

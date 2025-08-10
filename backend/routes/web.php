@@ -18,5 +18,5 @@ Route::get('/', function () {
 });
 Route::get('/reset-password/{token}', function ($token) {
 
-    return redirect('http://mea/reset-password?token=' . $token."&email=".request('email'));
+    return redirect('http://mealikmu.bantugdigital.org/reset-password?token=' . $token."&email=".request('email'));
 })->name('password.reset');

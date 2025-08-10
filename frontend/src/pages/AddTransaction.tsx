@@ -10,12 +10,14 @@ import Swal from 'sweetalert2';
 const AddTransaction = () => {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [buyer, setBuyer] = useState({
         name: '',
         phone: '',
         address: '',
         id: 0
     });
+    
     // Store full buyer list for autofill
     const [buyerList, setBuyerList] = useState<any[]>([]);
     const [status, setStatus] = useState('process');
@@ -89,6 +91,7 @@ const AddTransaction = () => {
     };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        setIsLoading(true);
         e.preventDefault();
         // Handle form submission logic here
         const transactionData = {
@@ -117,6 +120,8 @@ const AddTransaction = () => {
                 text: error.response?.data?.error || 'Terjadi kesalahan.',
             });
             console.error('Error creating transaction:', error);
+        }finally {
+            setIsLoading(false);
         }
     };
 
@@ -211,7 +216,7 @@ const AddTransaction = () => {
                                         </select>
                                     </div>
                                 </div>
-                                <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full">Simpan Transaksi</button>
+                                <button disabled={isLoading} type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full">{isLoading ? 'Loading...' : 'Simpan Transaksi'}</button>
                                 <h3 className='mt-4 font-bold'>
                                     Keterangan :
                                 </h3>
