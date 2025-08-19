@@ -31,7 +31,7 @@ class TransactionController extends Controller
 
         // Filter terbaru/terlama
         $order = $request->input('order', 'desc'); // default terbaru
-        $query->orderBy('transactions.created_at', $order);
+        $query->orderBy('transactions.transaction_date', $order);
         // Pagination
 
         $transactions = $query->paginate(10);
@@ -82,6 +82,7 @@ class TransactionController extends Controller
             'buyer_address' => 'nullable',
             'status' => 'required|in:process,completed,cancelled',
             'products' => 'required|array',
+            'date' => 'required|date',
         ]);
 
 
@@ -107,7 +108,7 @@ class TransactionController extends Controller
 
             $transaction = new Transaction();
             $transaction->transaction_number = 'TRX-' . strtoupper(uniqid());
-            $transaction->transaction_date = now();
+            $transaction->transaction_date = $validated['date'];
             $transaction->buyer_id = $buyer->id;
             $transaction->status = $validated['status'];
             $transaction->save();

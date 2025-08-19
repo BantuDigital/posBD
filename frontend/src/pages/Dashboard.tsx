@@ -20,12 +20,16 @@ const Dashboard = () => {
     produkLowStock: [],
   });
   const [loading, setLoading] = useState(true);
+  const today = new Date().toISOString().slice(0, 10);
+  const [startDate, setStartDate] = useState<string>(today);
+  const [endDate, setEndDate] = useState<string>(today);
 
   useEffect(() => {
     const fetchSummary = async () => {
+      setLoading(true);
       try {
-        // Ganti endpoint sesuai backend kamu
-        const res = await axios.get('/dashboard', {
+        // Kirim start_date dan end_date ke backend
+        const res = await axios.get(`/dashboard?start_date=${startDate}&end_date=${endDate}`, {
           headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
         });
         setSummary(res.data);
@@ -47,7 +51,7 @@ const Dashboard = () => {
       }
     };
     fetchSummary();
-  }, []);
+  }, [startDate, endDate]);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -58,6 +62,16 @@ const Dashboard = () => {
           <main className="flex-1 p-4 md:p-8 bg-white">
             <div className="bg-blue-50 rounded-xl shadow p-4 md:p-8 min-h-[200px] md:min-h-[300px] border border-gray-100">
               <h2 className="text-xl md:text-2xl font-bold mb-4 text-blue-700">Ringkasan</h2>
+              <div className="mb-4 flex gap-2 ">
+                <div className='w-1/2'>
+                  <label className="block text-sm text-gray-500">Start date</label>
+                  <input type="date" className="border w-full p-2 rounded" value={startDate} onChange={e => setStartDate(e.target.value)} />
+                </div>
+                <div className='w-1/2'>
+                  <label className="block text-sm text-gray-500">End date</label>
+                  <input type="date" className="border w-full p-2 rounded" value={endDate} onChange={e => setEndDate(e.target.value)} />
+                </div>
+              </div>
               {/* Warning stok rendah */}
               {!loading && summary.warningLowStock && (
                 <div className="mb-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded">
@@ -76,19 +90,19 @@ const Dashboard = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-white rounded shadow p-4 border">
-                    <div className="text-gray-500 text-sm mb-1">Total Penjualan Hari Ini (Rp)</div>
+                    <div className="text-gray-500 text-sm mb-1">Total Penjualan  (Rp)</div>
                     <div className="text-2xl font-bold text-blue-700"> {rupiah(summary.totalPenjualan)}</div>
                   </div>
                   <div className="bg-white rounded shadow p-4 border">
-                    <div className="text-gray-500 text-sm mb-1">Total Laba Kotor Hari Ini (Rp)</div>
+                    <div className="text-gray-500 text-sm mb-1">Total Laba Kotor  (Rp)</div>
                     <div className="text-2xl font-bold text-blue-700">{rupiah(summary.labaKotor)}</div>
                   </div>
                   <div className="bg-white rounded shadow p-4 border">
-                    <div className="text-gray-500 text-sm mb-1">Jumlah Order Hari Ini</div>
+                    <div className="text-gray-500 text-sm mb-1">Jumlah Order </div>
                     <div className="text-2xl font-bold text-blue-700">{summary.jumlahOrder}</div>
                   </div>
                   <div className="bg-white rounded shadow p-4 border">
-                    <div className="text-gray-500 text-sm mb-1">Jumlah Produk Terjual Hari Ini (pcs)</div>
+                    <div className="text-gray-500 text-sm mb-1">Jumlah Produk Terjual  (pcs)</div>
                     <div className="text-2xl font-bold text-blue-700">{Math.abs(summary.produkTerjual)}</div>
                   </div>
                   <div className="bg-white rounded shadow p-4 border">
@@ -98,6 +112,7 @@ const Dashboard = () => {
                 
                 </div>
               )}
+
             </div>
           </main>
         </div>

@@ -17,10 +17,11 @@ const AddTransaction = () => {
         address: '',
         id: 0
     });
-    
+
     // Store full buyer list for autofill
     const [buyerList, setBuyerList] = useState<any[]>([]);
     const [status, setStatus] = useState('process');
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
     const [buyerOptions, setBuyerOptions] = useState<{ value: string; label: string }[]>([]);
     useEffect(() => {
@@ -100,7 +101,8 @@ const AddTransaction = () => {
             buyer_phone: buyer.phone,
             buyer_address: buyer.address,
             products: products,
-            status: status
+            status: status,
+            date: date
         };
         try {
             await axios.post('/transactions', transactionData, {
@@ -120,7 +122,7 @@ const AddTransaction = () => {
                 text: error.response?.data?.error || 'Terjadi kesalahan.',
             });
             console.error('Error creating transaction:', error);
-        }finally {
+        } finally {
             setIsLoading(false);
         }
     };
@@ -135,6 +137,10 @@ const AddTransaction = () => {
                         <main className="flex-1 p-4 md:p-8 bg-white">
                             <h2 className="text-xl md:text-2xl font-bold mb-4 text-blue-700">Tambah Produk</h2>
                             <form className="space-y-4" onSubmit={handleSubmit}>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Tanggal Transaksi </label>
+                                    <input type="date" name="transaction_date" value={date} onChange={e => setDate(e.target.value)} className="mt-1 block w-full border p-2 rounded" />
+                                </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700">Nama Pembeli <span className='text-red-500'>*</span></label>
                                     <CreatableSelect
@@ -231,16 +237,16 @@ const AddTransaction = () => {
                                     </li>
                                     <li>
                                         <h3 className='mt-4 font-bold'>
-                                             Pastikan stok cukup untuk transaksi ini.
+                                            Pastikan stok cukup untuk transaksi ini.
                                         </h3>
                                     </li>
                                     <li>
 
                                         <h3 className='mt-4 font-bold'>
-                                          Jangan lupa mengisi nama pembeli, jika pembeli baru, anda bisa membuatnya dengan mengisi nama pembeli dan memilihnya 
+                                            Jangan lupa mengisi nama pembeli, jika pembeli baru, anda bisa membuatnya dengan mengisi nama pembeli dan memilihnya
                                         </h3>
                                     </li>
-                                
+
                                 </ul>
 
                             </form>

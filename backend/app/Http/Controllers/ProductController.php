@@ -275,12 +275,24 @@ class ProductController extends Controller
         //
     }
 
-    public function historyRestock(Request $request,$productId)
+    public function historyRestock(Request $request)
+    {
+        $start = $request->input('start_date') ?: now()->toDateString();
+        $end = $request->input('end_date') ?: now()->toDateString();
+
+        $history = HistoryRestock::join('products', 'history_restock.product_id', '=', 'products.id')
+            ->whereBetween('created_at', [$start, $end])
+            ->select('products.name', 'history_restock.date', 'history_restock.stock')
+            ->get();
+
+        return response()->json($history);
+    }
+    public function historyRestockShow(Request $request, $productId)
     {
         $productName = Product::where('id', $productId)->select('name')->first();
 
         $history = HistoryRestock::where('product_id', $productId)->get();
-        return response()->json(["name"=>$productName->name, "history"=>$history]);
+        return response()->json(["name" => $productName->name, "history" => $history]);
     }
 
 }

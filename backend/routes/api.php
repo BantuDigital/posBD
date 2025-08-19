@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/transactions', [TransactionController::class, 'store']);
     Route::post('/transactions/{transaction}/status', [TransactionController::class, 'status']);
 
-    Route::get('/history-restock/{productId}', [ProductController::class, 'historyRestock']);
+    Route::get('/history-restock/{productId}', [ProductController::class, 'historyRestockShow']);
+    Route::get('/history-restock', [ProductController::class, 'historyRestock']);
 });
 
