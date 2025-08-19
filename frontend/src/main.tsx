@@ -6,9 +6,9 @@ import App from './App';
 import axios from 'axios';
 
 // axios.defaults.baseURL="https://api-mealikmu.bantudigital.org/api";
-// const storageLink = "https://api-mealikmu.bantudigital.org/public";
+const storageLink = "";
 axios.defaults.baseURL = "http://localhost:8000/api";
-const storageLink = "https://api-mealikmu.bantudigital.org/public";
+// const storageLink = "https://api-mealikmu.bantudigital.org/public";
 
 
 createRoot(document.getElementById('root')!).render(

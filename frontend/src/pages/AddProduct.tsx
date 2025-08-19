@@ -13,6 +13,7 @@ interface Product {
     harga_modal: number;
     category: string;
     description: string;
+    date: string;
     image: File | null;
     [key: string]: any; // Index signature for dynamic key access
 }
@@ -29,6 +30,7 @@ const AddProduct = () => {
         cogs_price: 0,
         category: '',
         description: '',
+        date: '',
         image: null,
         components: [{ name: '', cost: 0 }],
     });
@@ -44,6 +46,7 @@ const AddProduct = () => {
         formData.append('stock', product.stock.toString());
         formData.append('category', product.category);
         formData.append('description', product.description);
+        formData.append('date', product.date);
         if (product.image) {
             formData.append('image', product.image);
         }
@@ -119,6 +122,10 @@ const AddProduct = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Stok <span className='text-red-500'>*</span> </label>
                                 <input required type="number" name="stock" value={product.stock} onChange={(e) => setProduct({ ...product, stock: parseFloat(e.target.value) })} className="mt-1 block w-full border p-2 rounded" placeholder="Masukkan stok" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Tanggal Masuk Produk <span className='text-red-500'>*</span> </label>
+                                <input required type="date" name="date" value={product.date} onChange={(e) => setProduct({ ...product, date: e.target.value })} className="mt-1 block w-full border p-2 rounded" placeholder="" />
                             </div>
 
                             <div>

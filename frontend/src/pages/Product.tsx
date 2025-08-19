@@ -16,6 +16,7 @@ type Product = {
     harga_jual: number;
     harga_modal: number;
     stock: number;
+    date: string;
 };
 
 const Product = () => {
@@ -70,8 +71,10 @@ const Product = () => {
                             >
                                 <option value="name:asc">Sort by Name (A-Z)</option>
                                 <option value="name:desc">Sort by Name (Z-A)</option>
-                                <option value="price:asc">Sort by Price (Low to High)</option>
-                                <option value="price:desc">Sort by Price (High to Low)</option>
+                                <option value="harga_jual:asc">Sort by Harga Jual (Low to High)</option>
+                                <option value="harga_jual:desc">Sort by Harga Jual (High to Low)</option>
+                                <option value="harga_modal:asc">Sort by Harga Modal (Low to High)</option>
+                                <option value="harga_modal:desc">Sort by Harga Modal (High to Low)</option>
                             </select>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -81,7 +84,7 @@ const Product = () => {
                                 </div>
                             ) : (
                                 products?.map((product) => (
-                                    <div key={product.id} className="border p-4 rounded shadow">
+                                    <div key={product.id} className="border  p-4 rounded shadow">
                                         <img
                                             src={product.image_url ? storageLink + product.image_url : '/placeholder.svg'}
 
@@ -94,15 +97,28 @@ const Product = () => {
                                                 Stock : {product.stock}
                                             </h3>
                                         </div>
-                                        <p className="text-gray-600">Category: {product.category}</p>
-                                        <p className="text-gray-600">Harga jual: {rupiah(product.harga_jual)}</p>
-                                        <p className="text-gray-600">Harga modal: {rupiah(product.harga_modal)}</p>
-                                        <p className={`text-sm ${product.is_active ? 'text-green-500' : 'text-red-500'}`}> 
+                                        <div className="flex justify-between">
+                                            <h3 className="text-lg font-bold">Restock terakhir:</h3>
+                                            <h3 className="text-lg ">{product.date}</h3>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <h3 className="text-lg font-bold">Harga Jual:</h3>
+                                            <h3 className="text-lg font-bold">{rupiah(product.harga_jual)}</h3>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <h3 className="text-lg font-bold">Harga Modal:</h3>
+                                            <h3 className="text-lg font-bold">{rupiah(product.harga_modal)}</h3>
+                                        </div>
+
+                                        <p className={`text-sm ${product.is_active ? 'text-green-500' : 'text-red-500'}`}>
                                             {product.is_active ? 'Active' : 'Inactive'}
                                         </p>
-                                        <div className="mt-4 flex justify-between">
-                                            <NavLink to={`/restock/${product.id}`} className="text-white w-full text-center bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded">
+                                        <div className="mt-4 font-bold">
+                                            <NavLink to={`/restock/${product.id}`} className="block mb-4 text-white w-full text-center bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded">
                                                 Restock
+                                            </NavLink>
+                                            <NavLink to={`/history-restock/${product.id}`} className="block text-white w-full text-center bg-cyan-500 hover:bg-cyan-600 px-4 py-2 rounded">
+                                                History Restock
                                             </NavLink>
                                         </div>
                                     </div>

@@ -9,6 +9,7 @@ import ReStockProduct from './pages/ReStockProduct';
 import TransactionList from './pages/TransactionList';
 import AddTransaction from './pages/AddTransaction';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import HistoryRestock from './pages/HistoryRestock';
 function App() {
   return (
     <BrowserRouter>
@@ -20,6 +21,7 @@ function App() {
         <Route path="/add-cogs/:productId" element={<AddCOGS />} />
         <Route path="/product/:productId" element={<EditProduct />} />
         <Route path="/restock/:productId" element={<ReStockProduct />} />
+        <Route path="/history-restock/:productId" element={<HistoryRestock />} />
         <Route path="/transaction" element={<TransactionList />} />
         <Route path="/transaction/create" element={<AddTransaction />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />

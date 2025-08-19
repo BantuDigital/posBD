@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HistoryRestock;
 use App\Models\Product;
 use App\Models\ProductCOGS;
 use Illuminate\Http\Request;
@@ -15,8 +16,15 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $query = DB::table('products');
-
+        $sub = DB::table('history_restocks')
+            ->select(
+                'product_id',
+                'date',
+                DB::raw('ROW_NUMBER() OVER (PARTITION BY product_id ORDER BY date DESC) rn')
+            );
+        $query = DB::table('products as p')
+            ->leftJoinSub($sub, 'h', fn($j) => $j->on('p.id', '=', 'h.product_id')->where('h.rn', 1))
+            ->select('p.id', 'p.name', 'h.date');
         // Search by name or category
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -33,7 +41,7 @@ class ProductController extends Controller
             $sortOrder = (string) $request->input('sort_order');
             $query->orderBy($sortBy, $sortOrder);
         }
-        $query->select('id', 'name', 'category', 'harga_jual', 'harga_modal', 'stock', 'image_url', 'is_active');
+        $query->select('p.id', 'p.name', 'p.category', 'p.harga_jual', 'p.harga_modal', 'p.stock', 'p.image_url', 'p.is_active', 'h.date');
         // Pagination
         $products = $query->paginate(10);
 
@@ -49,6 +57,7 @@ class ProductController extends Controller
                 'harga_jual' => 'required|numeric',
                 'harga_modal' => 'required|numeric',
                 'stockNew' => 'required|integer|min:1',
+                'date' => 'required|date',
             ]);
             DB::beginTransaction();
             $product = Product::findOrFail($productId);
@@ -62,6 +71,14 @@ class ProductController extends Controller
             $product->harga_modal = $mavg_cost_baru;
             $product->stock += $stok_baru; // Update stock with the new stock added
             $product->save();
+
+            $historyRestock = new HistoryRestock();
+            $historyRestock->harga_jual = $validated['harga_jual'];
+            $historyRestock->harga_modal = $validated['harga_modal'];
+            $historyRestock->stock = $validated['stockNew'];
+            $historyRestock->date = $validated['date'];
+            $historyRestock->product_id = $product->id;
+            $historyRestock->save();
 
             DB::commit();
             return response()->json(['message' => 'Product updated successfully'], 200);
@@ -113,6 +130,13 @@ class ProductController extends Controller
                 'image_url' => $imagePath,
                 'is_active' => true,
             ]);
+            $historyRestock = new HistoryRestock();
+            $historyRestock->harga_jual = $validated['harga_jual'];
+            $historyRestock->harga_modal = $validated['harga_modal'];
+            $historyRestock->stock = $validated['stock'];
+            $historyRestock->date = now();
+            $historyRestock->product_id = $product->id;
+            $historyRestock->save();
 
             DB::commit();
 
@@ -249,6 +273,14 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         //
+    }
+
+    public function historyRestock(Request $request,$productId)
+    {
+        $productName = Product::where('id', $productId)->select('name')->first();
+
+        $history = HistoryRestock::where('product_id', $productId)->get();
+        return response()->json(["name"=>$productName->name, "history"=>$history]);
     }
 
 }

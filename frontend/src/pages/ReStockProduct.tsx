@@ -18,12 +18,14 @@ interface Product {
 const ReStockProduct = () => {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const { productId } = useParams();
     const [product, setProduct] = useState<Product>({
         name: '',
         harga_jual: 0,
         harga_modal: 0,
         stockNew: 0,
+        date: '',
 
     });
     useEffect(() => {
@@ -42,6 +44,7 @@ const ReStockProduct = () => {
                     name: response.data.product.name,
                     harga_jual: response.data.product.harga_jual,
                     harga_modal: response.data.product.harga_modal,
+                    date:  new Date().toISOString().split('T')[0],
                     stockNew: 0,
                 });
 
@@ -52,12 +55,14 @@ const ReStockProduct = () => {
         fetchProduct();
     }, []);
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        setIsLoading(true);
         e.preventDefault();
         const formData = new FormData();
         // Explicitly handle each field in the product object, skip 'price' (already appended)
         formData.append('harga_jual', product.harga_jual.toString());
         formData.append('harga_modal', product.harga_modal.toString());
         formData.append('stockNew', product.stockNew.toString());
+        formData.append('date', product.date);
 
         try {
             const token = localStorage.getItem('token');
@@ -90,6 +95,8 @@ const ReStockProduct = () => {
                     text: 'Gagal menambahkan produk : ' + error.response.data.message,
                 });
             }
+        }finally {
+            setIsLoading(false);
         }
     };
 
@@ -104,7 +111,11 @@ const ReStockProduct = () => {
                         <form className="space-y-4" onSubmit={handleSubmit}>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Nama Produk <span className='text-red-500'>*</span></label>
-                                <input required type="text" name="name" value={product.name} onChange={(e) => setProduct({ ...product, name: e.target.value })} className="mt-1 block w-full border p-2 rounded" placeholder="Masukkan nama produk" />
+                                <input disabled type="text" name="name" value={product.name} className="mt-1 block w-full border p-2 rounded" placeholder="Masukkan nama produk" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Tanggal restock <span className='text-red-500'>*</span></label>
+                                <input  type="date"  name="date" onChange={(e) => setProduct({ ...product, date: e.target.value })} value={product.date} className="mt-1 block w-full border p-2 rounded" placeholder="Masukkan tanggal restock" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Harga Jual <span className='text-red-500'>*</span></label>
@@ -128,13 +139,13 @@ const ReStockProduct = () => {
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Jumlah Stok Baru <span className='text-red-500'>*</span> </label>
-                                <input required type="number" name="stockNew" value={product.stockNew} onChange={(e) => setProduct({ ...product, stockNew: parseFloat(e.target.value) })} className="mt-1 block w-full border p-2 rounded" placeholder="Masukkan stok" />
+                                <input min={1} required type="number" name="stockNew" value={product.stockNew} onChange={(e) => setProduct({ ...product, stockNew: parseFloat(e.target.value) })} className="mt-1 block w-full border p-2 rounded" placeholder="Masukkan stok" />
                                 <span className='text-sm font-bold'>Masukkan jumlah stok baru, BUKAN TOTAL STOK KESELURUHAN</span>
                             </div>
 
 
 
-                            <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full">Simpan</button>
+                            <button type="submit" disabled={isLoading} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 w-full">{isLoading ? 'Loading...' : 'Simpan'}</button>
                         </form>
                         <h3 className='mt-4 font-bold'>
                             Keterangan :
